@@ -16,9 +16,7 @@
            indicator-color="transparent">
         <q-route-tab
          to="/"         
-         icon="fas fa-home"
-         
-         
+         icon="fas fa-home"         
          />
         <q-route-tab
          to="/camera"         
@@ -30,7 +28,7 @@
       </q-footer>
   
 
-    <q-page-container>
+    <q-page-container class="bg-grey-1">
       <router-view />
     </q-page-container>
   </q-layout>
