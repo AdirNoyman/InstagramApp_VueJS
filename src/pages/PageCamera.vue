@@ -34,9 +34,13 @@
         <q-input v-model="post.caption" label="Caption" class="col-10 col-sm-8"/>        
       </div>
       <div class="row justify-center q-ma-md">
-         <q-input v-model="post.location" label="Location" class="col-10 col-sm-8">
+         <q-input :loading="locationLoading" v-model="post.location" label="Location" class="col-10 col-sm-8">
            <template v-slot:append>
-          <q-btn round dense flat icon="fas fa-map-marker-alt" />
+          <q-btn
+           v-if="!locationLoading && locationSupported"
+           @click="getLocation"
+           round dense flat icon="fas fa-map-marker-alt"
+            />
           
         </template>
            </q-input>       
@@ -68,8 +72,23 @@ export default {
       },
       imageCaptured: false,
       imageUpLoad: [],
-      hasCameraSupport: true
+      hasCameraSupport: true,
+      locationLoading: false
 
+    }
+
+  },
+  computed: {
+
+    locationSupported() {
+
+      if (navigator.geolocation) {
+
+        return true
+
+      }
+
+      return false
     }
 
   },
@@ -154,13 +173,57 @@ export default {
   let blob = new Blob([ab], {type: mimeString});
   return blob;
 
+},
+getLocation() {
+
+  this.locationLoading = true
+  navigator.geolocation.getCurrentPosition(position => {
+
+    this.getCityAndCountry(position);
+
+  }, error => {this.locationError();},
+  {timeout: 7000}
+  );
+
+},
+getCityAndCountry(position) {
+
+  let apiUrl = `https://geocode.xyz/${position.coords.latitude},${position.coords.longitude}?json=1`;
+
+  this.$axios.get(apiUrl).then(result => {
+
+    this.locationSuccess(result);
+    console.log(result);
+
+  }).catch(error => {this.locationError();});
+
+},
+locationSuccess(result) {
+  
+  this.post.location = result.data.city;
+  if (result.data.country) {
+
+    this.post.location += `, ${result.data.country}`
+  }
+  this.locationLoading = false
+},
+locationError() {
+  // console.log('error: ', error);
+
+  this.$q.dialog({
+        title: 'Error',
+        message: 'Could not find your location 😕'
+      });
+
+this.locationLoading = false
+
 }
    },
    // Vue lifesycle Hooks /////////////////////////////////////////////// 
    mounted() {
 
      this.initCamera();
-
+     
    },
    beforeDestroy() {
 
