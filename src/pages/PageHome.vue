@@ -101,9 +101,9 @@ export default {
     getPosts() {
 
       this.loadingPosts = true      
-      
+      console.log(`${process.env.API}/posts`)
       console.log('Getting posts from dataBase...🤓')
-      this.$axios.get('http://localhost:3000/posts').then(res => {
+      this.$axios.get(`${process.env.API}/posts`).then(res => {
 
           console.log('response: ', res)
           this.posts = res.data;
@@ -147,5 +147,4 @@ export default {
   .card-post
      .q-img 
        min-height: 200px
-
 </style>
